@@ -2,12 +2,18 @@
 import pyglet
 from random import getrandbits
 from threading import Lock
+from argparse import ArgumentParser
+
 import Seenworld as sw
 
-eco_w, eco_h = 64, 64
-cell_d = 8 
-#eco_w, eco_h = 3, 3
-#cell_d = 20
+parser = ArgumentParser ()
+parser.add_argument ('-wi', '--width', type=int, help = 'width of world in grid cell', default = 64)
+parser.add_argument ('-he', '--height', type=int, help = 'height of world in grid cell', default = 64)
+parser.add_argument ('-ce', '--cell', type=int, help = 'number of pixels of a side of boundary square of a cell', default = 8)
+args = parser.parse_args ()
+
+eco_w, eco_h = args.width, args.height 
+cell_d = args.cell
 
 sw.circle_radius = cell_d / 2
 sw.setup (sw.sep + eco_w*(cell_d + sw.sep), sw.sep + eco_h*(cell_d + sw.sep))
