@@ -45,7 +45,6 @@ class World:
 		self.height = mh + h*(cell_d + sep) + mw - sep
 
 		self.draw_batch = pyglet.graphics.Batch ()
-		self.draw_list = []
 		self.verts = dict ()
 
 		self.ecosys     = [[Eco.CellEntity (x, y, self.spawn, seeds[x][y] if seeds is not None else False) for y in range (h)] for x in range(w)]
@@ -83,25 +82,19 @@ class World:
 		return self.draw_batch.add (circle_numpoints, GL_POINTS, None, ('v2f', self.verts[x][y]))
 
 	def draw (self):
-		#self.draw_batch.draw ()
-		for i in self.draw_list:
-			glColor3f(live_color[0], live_color[1], live_color[2])
-			i.draw (GL_POINTS)
+		glColor3f(live_color[0], live_color[1], live_color[2])
+		self.draw_batch.draw ()
 
 	def generate (self):
-		self.draw_list = []
 		for x in range(self.w):
 			for y in range(self.h):
 				n_alive_neiboughs = self.check_neiboughs (x, y)
 				if self.EcoState[x][y]:
 					if (n_alive_neiboughs < 2) or (n_alive_neiboughs > 3):
 						self.EcoSys[x][y].Die ()
-					else:
-						self.draw_list += [self.EcoSys[x][y].entity]
 				else:
 					if (n_alive_neiboughs == 3):
 						self.EcoSys[x][y].Resurrect ()
-						self.draw_list += [self.EcoSys[x][y].entity]
 
 		#print([[self.EcoSys[x][y].IsAlive for y in range (0, self.h)] for x in range(0, self.w)])
 		self.record ()

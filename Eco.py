@@ -22,14 +22,12 @@ class CellEntity (Cell):
 		self.spawn_func = spawn_func
 		if alive:
 			self.Resurrect ()
-			self.entity = self.spawn_func (self.x, self.y)
-		else:
-			self.entity = None 
 
 	def Die (self):
 		#print ("x %d y %d is killed"%(self.x, self.y))
 		Cell.Die (self)
-		self.entity.delete ()
+		if self.entity is not None:
+			self.entity.delete ()
 
 	def Resurrect(self):
 		#print ("x %d y %d is born"%(self.x, self.y))
