@@ -1,7 +1,7 @@
 # GOL
 Game Of Life
 
-(Link here)[https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life]
+[Link here](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
 
 Run main.py to start the game. Initial seeds are randomized at the begining.
 
