@@ -64,8 +64,9 @@ class World:
 		         [x-1,y  ],[x+1,y],
 		         [x-1,y+1],[x,y+1],[x+1,y+1]]
 		for (cand_x,cand_y) in cands:
-			if (0 <= cand_x < self.w) and (0 <= cand_y < self.h):
-				alive_around += 1 if self.EcoState[cand_x][cand_y] else 0
+			sample_x = self.w - 1 if cand_x < 0 else (0 if cand_x == self.w else cand_x) 
+			sample_y = self.h - 1 if cand_y < 0 else (0 if cand_y == self.h else cand_y) 
+			alive_around += 1 if self.EcoState[sample_x][sample_y] else 0
 
 		return alive_around
 
