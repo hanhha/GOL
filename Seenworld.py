@@ -12,6 +12,7 @@ circle_numpoints = 1
 
 circle_radius = 0
 live_color = [0, 255, 0]
+sleep_color = [255, 0, 0]
 
 def setup (w, h):
 	global screen
@@ -37,7 +38,7 @@ def setup (w, h):
 	screen = pyglet.window.Window (width = w + 2*mw, height = h + 2*mh, caption = 'Game of Life')
 
 class World:
-	def __init__ (self, w, h, cell_d, seeds = None):
+	def __init__ (self, w, h, cell_d, cont, seeds = None):
 		self.w = w
 		self.h = h
 		self.cell_d = cell_d
@@ -49,6 +50,19 @@ class World:
 
 		self.ecosys     = [[Eco.CellEntity (x, y, self.spawn, seeds[x][y] if seeds is not None else False) for y in range (h)] for x in range(w)]
 		self.ecosys_pst = [[seeds[x][y] if seeds is not None else False for y in range (h)] for x in range(w)]
+
+		self.cont     = cont
+		self.hijacked = False
+
+	@property
+	def IsHijacked (self):
+		return self.hijacked
+
+	def GodBearAHandIn (self):
+		self.hijacked = True
+
+	def GodLeave (self):
+		self.hijacked = False
 
 	@property
 	def EcoSys (self):
@@ -64,9 +78,13 @@ class World:
 		         [x-1,y  ],[x+1,y],
 		         [x-1,y+1],[x,y+1],[x+1,y+1]]
 		for (cand_x,cand_y) in cands:
-			sample_x = self.w - 1 if cand_x < 0 else (0 if cand_x == self.w else cand_x) 
-			sample_y = self.h - 1 if cand_y < 0 else (0 if cand_y == self.h else cand_y) 
-			alive_around += 1 if self.EcoState[sample_x][sample_y] else 0
+			if self.cont:
+				sample_x = self.w - 1 if cand_x < 0 else (0 if cand_x == self.w else cand_x) 
+				sample_y = self.h - 1 if cand_y < 0 else (0 if cand_y == self.h else cand_y) 
+				alive_around += 1 if self.EcoState[sample_x][sample_y] else 0
+			else:
+				if (0 <= cand_x < self.w) and (0 <= cand_y < self.h):
+					alive_around += 1 if self.EcoState[cand_x][cand_y] else 0
 
 		return alive_around
 
@@ -83,7 +101,11 @@ class World:
 		return self.draw_batch.add (circle_numpoints, GL_POINTS, None, ('v2f', self.verts[x][y]))
 
 	def draw (self):
-		glColor3f(live_color[0], live_color[1], live_color[2])
+		if not self.IsHijacked:
+			glColor3f(live_color[0], live_color[1], live_color[2])
+		else:
+			glColor3f(sleep_color[0], sleep_color[1], sleep_color[2])
+
 		self.draw_batch.draw ()
 
 	def generate (self):
@@ -97,6 +119,4 @@ class World:
 					if (n_alive_neiboughs == 3):
 						self.EcoSys[x][y].Resurrect ()
 
-		#print([[self.EcoSys[x][y].IsAlive for y in range (0, self.h)] for x in range(0, self.w)])
 		self.record ()
-		#print(self.EcoState)

@@ -9,17 +9,20 @@ import Seenworld as sw
 parser = ArgumentParser ()
 parser.add_argument ('-wi', '--width', type=int, help = 'width of world in grid cell', default = 64)
 parser.add_argument ('-he', '--height', type=int, help = 'height of world in grid cell', default = 64)
-parser.add_argument ('-ce', '--cell', type=int, help = 'number of pixels of a side of boundary square of a cell', default = 8)
+parser.add_argument ('-ce', '--cell', type=int, help = 'size of boundary square of a cell', default = 8)
+parser.add_argument ('-co', '--continous', help = 'connect sides of 2D grid, left with right and top with bottom', action = 'store_true')
 args = parser.parse_args ()
 
 eco_w, eco_h = args.width, args.height 
 cell_d = args.cell
+cont = args.continous
+print ("cont = {0}".format(cont))
 
 sw.circle_radius = cell_d / 2
 sw.setup (sw.sep + eco_w*(cell_d + sw.sep), sw.sep + eco_h*(cell_d + sw.sep))
 
 seeds = [[not getrandbits(1) for y in range(eco_h)] for x in range(eco_w)]
-world = sw.World (eco_w, eco_h, cell_d, seeds)
+world = sw.World (eco_w, eco_h, cell_d, cont, seeds)
 
 generate_lck = Lock ()
 
@@ -47,12 +50,16 @@ def on_mouse_release (x, y, button, modifiers):
 
 @sw.screen.event
 def on_key_press (symbol, modifiers):
-	print (world.EcoState)
+	if not world.IsHijacked:
+		world.GodBearAHandIn ()
+	else:
+		world.GodLeave ()
 
 def update (dt):
 	global generate_lck
 	if generate_lck.acquire (False):	
-		world.generate ()
+		if not world.IsHijacked:
+			world.generate ()
 		generate_lck.release ()
 
 pyglet.clock.schedule_interval (update, 0.5)
